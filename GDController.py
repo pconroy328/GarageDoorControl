@@ -24,8 +24,9 @@ import logging
 #   cd git-openssl/
 #   sudo dpkg -i git_1.9.1-1ubuntu0.3_amd64.deb
 #   echo "git hold" | sudo dpkg --set-selections
-
-logging.basicConfig(filename='/garagedoorcontroller.log', level=logging.DEBUG)
+#
+#
+logging.basicConfig(filename='garagedoorcontroller.log', level=logging.DEBUG)
 logging.info("GarageDoorController - Application start!")
 
 aws_mqtt_broker = 'ec2-52-32-56-28.us-west-2.compute.amazonaws.com'
