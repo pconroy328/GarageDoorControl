@@ -1,6 +1,7 @@
 #import Relay
 from MessageHandler import MessageHandler
 from time import sleep
+import logging
 
 #
 # To get this into CodeCommit
@@ -24,11 +25,14 @@ from time import sleep
 #   sudo dpkg -i git_1.9.1-1ubuntu0.3_amd64.deb
 #   echo "git hold" | sudo dpkg --set-selections
 
+logging.basicConfig(filename='/garagedoorcontroller.log', level=logging.DEBUG)
+logging.info("GarageDoorController - Application start!")
+
 aws_mqtt_broker = 'ec2-52-32-56-28.us-west-2.compute.amazonaws.com'
 msgHandler = MessageHandler(aws_mqtt_broker)
 msgHandler.start()
 
 while True:
-    print 'v6 Main loop sleeping - processing messages'
+    logging.info('v7 Main loop sleeping - processing messages')
     msgHandler.sendStatusMessage()
     sleep(5)

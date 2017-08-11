@@ -1,5 +1,6 @@
 from Relay import Relay
 import datetime
+import logging
 
 class GarageDoor(object):
 
@@ -12,12 +13,12 @@ class GarageDoor(object):
         self.last_command_datetime = datetime.datetime.now()
 
     def set_opened(self, date_time):
-        print 'Setting garage door state to OPENED'
+        logging.debug('Setting garage door state to OPENED')
         self.state_datetime = datetime.datetime.now()
         self.state = 'OPENED'
 
     def set_closed(self, date_time):
-        print 'Setting garage door state to CLOSED'
+        logging.debug('Setting garage door state to CLOSED')
         self.state_datetime = datetime.datetime.now()
         self.state = 'CLOSED'
 
@@ -28,29 +29,29 @@ class GarageDoor(object):
         return self.state == 'CLOSED'
 
     def do_open_door(self):
-        print 'Command received to open the door'
+        logging.info('Command received to open the door')
         if self.state == 'OPENED':
-            print 'Open command ignored - door is already open'
+            logging.info('Open command ignored - door is already open')
             return
-        print 'Setting state to in-motion - triggering relay'
+        logging.info('Setting state to in-motion - triggering relay')
         self.last_command = 'OPEN'
         self.last_command_datetime = datetime.datetime.now()
         self.state = 'INMOTION'
         self.door_relay.trigger(self.door_id)
 
     def do_close_door(self):
-        print 'Command received to close the door'
+        logging.info('Command received to close the door')
         if self.state == 'CLOSED':
-            print 'Close command ignored - door is already closed'
+            logging.info('Close command ignored - door is already open')
             return
-        print 'Setting state to in-motion - triggering relay'
+        logging.info('Setting state to in-motion - triggering relay')
         self.last_command = 'CLOSE'
         self.last_command_datetime = datetime.datetime.now()
         self.state = 'INMOTION'
         self.door_relay.trigger(self.door_id)
 
     def do_trigger_door(self):
-        print 'Trigger command received'
+        logging.info('Trigger command received')
         self.last_command = 'TRIGGER'
         self.last_command_datetime = datetime.datetime.now()
         self.state = 'INMOTION'

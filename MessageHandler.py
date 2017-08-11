@@ -3,6 +3,8 @@ import json
 import datetime
 from GarageDoor import GarageDoor
 from SystemStats import SystemStats
+import logging
+
 
 class MessageHandler(object):
     def __init__(self,broker_address="10.0.0.11"):
@@ -14,9 +16,8 @@ class MessageHandler(object):
         self.garageDoors = {1: GarageDoor(1), 2: GarageDoor(2)}
 
     def on_connect(self, client, userdata, flags, rc):
-        print 'Connected to broker at ', self.broker_address
-        m = 'Connected flags' +str(flags) + ' result code ' + str(rc) + 'client1_id ' + str(client)
-        print(m)
+        logging.info('Connected to broker at %s', self.broker_address)
+        pass
 
     def on_message(self, client, userdata, message):
         payload = str(message.payload.decode("utf-8"))
@@ -26,10 +27,12 @@ class MessageHandler(object):
             #
             # is this a command to open or close the door?
             if jsonPayload["topic"] == self.commandTopic:
+                logging.info('Command received! [%s]',payload)
+
                 date_time = jsonPayload["datetime"]
                 door_id = jsonPayload["doorID"]
                 command = jsonPayload["command"]
-                print 'Command received on', date_time, ' for door ', door_id, ' command: ', command
+                logging.debug('Command received on %s, for door %s, command %s', date_time, door_id, command)
                 if command.upper() == 'OPEN':
                     self.garageDoors.get(door_id).do_open_door()
                 elif command.upper() == 'CLOSE':
@@ -41,20 +44,26 @@ class MessageHandler(object):
             elif jsonPayload['topic'] == self.doorStatusTopic:
                 pass
         except:
-            # print 'Error trying to convert message to json '
-            # print 'You havent fixed the json payload in HHB yet, have you?'
+            logging.error('Error trying to convert message to json [%s]', payload)
             try:
                 jsonStart = payload.index('{')
                 jsonPayload = payload[jsonStart:]
 
-                jsonPayload = json.loads(jsonPayload)
-                device_type = jsonPayload['deviceType']
-                if device_type == 24:
-                    door_state = jsonPayload['state'].upper()
-                    if 'CLOSE' in door_state:
-                        self.garageDoors.get(1).set_closed(jsonPayload['datetime'])
-                    elif 'OPEN' in door_state:
-                        self.garageDoors.get(1).set_opened(jsonPayload['datetime'])
+                if jsonPayload["topic"] == self.commandTopic:
+                    logging.info('OOOPS Command received! [%s]', payload)
+
+                    date_time = jsonPayload["datetime"]
+                    door_id = jsonPayload["doorID"]
+                    command = jsonPayload["command"]
+
+                    logging.debug('OOOPS - Command received on %s, for door %s, command %s', date_time, door_id, command)
+                    if command.upper() == 'OPEN':
+                        self.garageDoors.get(door_id).do_open_door()
+                    elif command.upper() == 'CLOSE':
+                        self.garageDoors.get(door_id).do_close_door()
+                    elif command.upper() == 'TRIGGER':
+                        self.garageDoors.get(door_id).do_trigger_door()
+                    #
             except:
                 print 'Second Error trying to convert message to json'
 
@@ -73,7 +82,7 @@ class MessageHandler(object):
         self.client.loop_stop()
 
     def sendStatusMessage(self):
-        print 'Sending a status message'
+        logging.info('Sending a status message')
         data = {}
         data['topic'] = 'GDCTL/STATUS'
         data['datetime'] = datetime.datetime.now().replace(microsecond=0).isoformat()
