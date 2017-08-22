@@ -13,13 +13,13 @@ class GarageDoor(object):
         self.last_command_datetime = datetime.datetime.now()
 
     def set_opened(self, date_time):
-        logging.debug('Setting garage door state to OPENED')
-        self.state_datetime = datetime.datetime.now()
+        logging.debug('Setting garage door state to OPENED at %s', date_time)
+        self.state_datetime = date_time
         self.state = 'OPENED'
 
     def set_closed(self, date_time):
-        logging.debug('Setting garage door state to CLOSED')
-        self.state_datetime = datetime.datetime.now()
+        logging.debug('Setting garage door state to CLOSED at %s', date_time)
+        self.state_datetime = date_time
         self.state = 'CLOSED'
 
     def is_opened(self):
