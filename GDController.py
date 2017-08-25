@@ -25,6 +25,9 @@ import logging
 #   sudo dpkg -i git_1.9.1-1ubuntu0.3_amd64.deb
 #   echo "git hold" | sudo dpkg --set-selections
 
+#
+# Repo is https://git-codecommit.us-east-1.amazonaws.com/v1/repos/GarageDoorControl
+#
 
 logging.basicConfig(filename='garagedoorcontroller.log', level=logging.DEBUG)
 #
