@@ -90,7 +90,7 @@ class MessageHandler(object):
 
     # ------------------------------------------------------------------------------------
     def sendStatusMessage(self):
-        logging.info('Sending a status message')
+        ##logging.info('Sending a status message')
         data = {}
         data['topic'] = 'GDCTL/STATUS'
         data['datetime'] = datetime.datetime.now().replace(microsecond=0).isoformat()
