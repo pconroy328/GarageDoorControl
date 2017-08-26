@@ -13,14 +13,14 @@ class GarageDoor(object):
         self.last_command_datetime = datetime.datetime.now()
 
     def set_opened(self, date_time):
-        logging.debug('Setting garage door state to OPENED at %s', date_time)
-        self.state_datetime = date_time
-        self.state = 'OPENED'
+         #logging.debug('Setting garage door state to OPENED at %s', date_time)
+         self.state_datetime = date_time
+         self.state = 'OPENED'
 
     def set_closed(self, date_time):
-        logging.debug('Setting garage door state to CLOSED at %s', date_time)
-        self.state_datetime = date_time
-        self.state = 'CLOSED'
+         #logging.debug('Setting garage door state to CLOSED at %s', date_time)
+         self.state_datetime = date_time
+         self.state = 'CLOSED'
 
     def is_opened(self):
         return self.state == 'OPENED'
@@ -58,6 +58,6 @@ class GarageDoor(object):
         self.door_relay.trigger(self.door_id)
 
     def asJSON(self):
-        mydict = dict(door_id=self.door_id, state=self.state, state_datetime=self.state_datetime.replace(microsecond=0).isoformat(),
-                      last_command=self.last_command, last_command_datetime=self.last_command_datetime.replace(microsecond=0).isoformat())
+        mydict = dict(door_id=self.door_id, state=self.state, state_datetime=self.state_datetime,
+                      last_command=self.last_command, last_command_datetime=self.last_command_datetime)
         return mydict
