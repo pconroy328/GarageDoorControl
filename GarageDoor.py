@@ -65,4 +65,6 @@ class GarageDoor(object):
         data['state_datetime'] = self.state_datetime
         data['last_command'] = self.last_command
         data['last_command_datetime'] = self.last_command_datetime
+        print data
+        print json.dumps(data)
         return json.dumps(data)
