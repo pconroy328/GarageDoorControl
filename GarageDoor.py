@@ -1,6 +1,7 @@
 from Relay import Relay
 import datetime
 import logging
+import json
 
 class GarageDoor(object):
 
@@ -58,6 +59,10 @@ class GarageDoor(object):
         self.door_relay.trigger(self.door_id)
 
     def asJSON(self):
-        mydict = dict(door_id=self.door_id, state=self.state, state_datetime=self.state_datetime,
-                      last_command=self.last_command, last_command_datetime=self.last_command_datetime)
-        return mydict
+        data = {}
+        data['door_id'] = self.door_id
+        data['state'] = self.state
+        data['state_datetime'] = self.state_datetime
+        data['last_command'] = self.last_command
+        data['last_command_datetime'] = self.last_command_datetime
+        return json.dumps(data)
