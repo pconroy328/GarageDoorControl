@@ -42,7 +42,7 @@ class MessageHandler(object):
 
         #
         # is this a command to open or close the door?
-        if jsonPayload["topic"] == self.commandTopic:
+        if jsonPayload['topic'] == self.commandTopic:
             logging.info('Command received! [%s]',payload)
 
             date_time = jsonPayload["datetime"]
@@ -57,7 +57,7 @@ class MessageHandler(object):
             elif command.upper() == 'TRIGGER':
                 self.garageDoors.get(door_id).do_trigger_door()
 
-        elif json['topic'] == self.doorStatusTopic:
+        elif jsonPayload['topic'] == self.doorStatusTopic:
             #
             # OK - this is a standard HHB/STATUS command - look for the message about Garage Doors
             device_type = jsonPayload['deviceType']
