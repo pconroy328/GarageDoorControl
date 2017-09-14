@@ -4,13 +4,16 @@ import datetime
 from GarageDoor import GarageDoor
 from SystemStats import SystemStats
 import logging
+from collections import OrderedDict
+
 
 
 class MessageHandler(object):
+
     # ------------------------------------------------------------------------------------
-    def __init__(self,broker_address="10.0.0.11"):
+    def __init__(self,broker_address='ec2-52-32-56-28.us-west-2.compute.amazonaws.com'):
         self.broker_address = broker_address
-        self.client = mqtt.Client('gdcontroller')
+        self.client = mqtt.Client('gdcontroller2')
         self.commandTopic = "GDCTL/COMMAND"
         self.statusTopic = "GDCTL/STATUS"
         self.doorStatusTopic = "HHB/STATUS"
@@ -28,49 +31,43 @@ class MessageHandler(object):
             jsonPayload = json.loads(payload)
             #
             # is this a HHB Door Status message?
-        except:
-            logging.error(
-                'Error trying to convert message to json You havent fixed the json payload in HHB yet, have you?')
 
-            try:
-                jsonStart = payload.index('{')
-                jsonPayload = payload[jsonStart:]
-
-                jsonPayload = json.loads(jsonPayload)
-            except:
-                logging.error('Second Error trying to convert message to json')
-
-        #
-        # is this a command to open or close the door?
-        if jsonPayload['topic'] == self.commandTopic:
-            logging.info('Command received! [%s]',payload)
-
-            date_time = jsonPayload["datetime"]
-            door_id = jsonPayload["doorID"]
-            command = jsonPayload["command"]
-            logging.debug('Command received on %s, for door %s, command %s', date_time, door_id, command)
-
-            if command.upper() == 'OPEN':
-                self.garageDoors.get(door_id).do_open_door()
-            elif command.upper() == 'CLOSE':
-                self.garageDoors.get(door_id).do_close_door()
-            elif command.upper() == 'TRIGGER':
-                self.garageDoors.get(door_id).do_trigger_door()
-
-        elif jsonPayload['topic'] == self.doorStatusTopic:
+            print 'Topic >>>> ', jsonPayload['topic']
             #
-            # OK - this is a standard HHB/STATUS command - look for the message about Garage Doors
-            device_type = jsonPayload['deviceType']
-            if device_type == 24:
-                door_state = jsonPayload['state'].upper()
-                date_time = jsonPayload['datetime']
+            # is this a command to open or close the door?
+            if jsonPayload['topic'] == self.commandTopic:
+                logging.info('Command received! [%s]', payload)
+                print 'Command received!',payload
 
-                # Fix this as soon as I get more than one Garage Door
-                door_id = 1
-                if door_state == 'CLOSED':
-                    self.garageDoors.get(door_id).set_closed(date_time)
-                else:
-                    self.garageDoors.get(door_id).set_opened(date_time)
+                date_time = jsonPayload["datetime"]
+                door_id = jsonPayload["doorID"]
+                command = jsonPayload["command"]
+                logging.debug('Command received on %s, for door %s, command %s', date_time, door_id, command)
+
+                if command.upper() == 'OPEN':
+                    self.garageDoors.get(door_id).do_open_door()
+                elif command.upper() == 'CLOSE':
+                    self.garageDoors.get(door_id).do_close_door()
+                elif command.upper() == 'TRIGGER':
+                    self.garageDoors.get(door_id).do_trigger_door()
+
+            elif jsonPayload['topic'] == self.doorStatusTopic:
+                #
+                # OK - this is a standard HHB/STATUS command - look for the message about Garage Doors
+                device_type = jsonPayload['deviceType']
+                if device_type == 24:
+                    print 'Door 24 Status Received !', payload
+                    door_state = jsonPayload['state'].upper()
+                    date_time = jsonPayload['datetime']
+
+                    # Fix this as soon as I get more than one Garage Door
+                    door_id = 1
+                    if door_state == 'CLOSED':
+                        self.garageDoors.get(door_id).set_closed(date_time)
+                    else:
+                        self.garageDoors.get(door_id).set_opened(date_time)
+        except:
+            logging.error('Error trying to convert message to json You havent fixed the json payload in HHB yet, have you?')
 
     # ------------------------------------------------------------------------------------
     def start(self):
@@ -91,10 +88,12 @@ class MessageHandler(object):
     # ------------------------------------------------------------------------------------
     def sendStatusMessage(self):
         ##logging.info('Sending a status message')
-        data = {}
+        data = OrderedDict()
         data['topic'] = 'GDCTL/STATUS'
         data['datetime'] = datetime.datetime.now().replace(microsecond=0).isoformat()
         data['system'] = SystemStats().asJSON()
-        data['door'] = self.garageDoors.get(1).asJSON()
+        # data['door'] = self.garageDoors.get(1).asJSON()
+        doorData = self.garageDoors.get(1).asJSON()
+        data['door'] = doorData
         json_data = json.dumps(data)
         self.client.publish(self.statusTopic, json_data,qos=0)
