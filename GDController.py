@@ -28,13 +28,13 @@ import logging
 #
 # Repo is https://git-codecommit.us-east-1.amazonaws.com/v1/repos/GarageDoorControl
 #
-
-logging.basicConfig(filename='garagedoorcontroller.log', level=logging.DEBUG)
+FORMAT = '%(asctime)-15s|%(levelname)s|%(message)s'
+logging.basicConfig(format=FORMAT,filename='garagedoorcontroller.log', level=logging.DEBUG)
 #
 # logging.getLogger().setLevel(logging.DEBUG)
 #
 
-logging.info("GarageDoorController - v8 - Application start!")
+logging.info("GarageDoorController - v9 - Application start!")
 
 aws_mqtt_broker = 'ec2-52-32-56-28.us-west-2.compute.amazonaws.com'
 msgHandler = MessageHandler(aws_mqtt_broker)

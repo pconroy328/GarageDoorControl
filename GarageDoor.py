@@ -64,7 +64,7 @@ class GarageDoor(object):
         data = OrderedDict()
         data['door_id'] = self.door_id
         data['state'] = self.state
-        data['state_datetime'] = self.state_datetime
+        data['state_datetime'] = str(self.state_datetime)
         data['last_command'] = self.last_command
         data['last_command_datetime'] = str(self.last_command_datetime)
         return data

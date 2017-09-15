@@ -95,5 +95,8 @@ class MessageHandler(object):
         # data['door'] = self.garageDoors.get(1).asJSON()
         doorData = self.garageDoors.get(1).asJSON()
         data['door'] = doorData
-        json_data = json.dumps(data)
+        try:
+            json_data = json.dumps(data)
+        except Exception as ex:
+            logging.error( 'Error ', ex )
         self.client.publish(self.statusTopic, json_data,qos=0)
