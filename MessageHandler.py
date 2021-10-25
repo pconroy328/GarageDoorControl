@@ -11,7 +11,7 @@ from collections import OrderedDict
 class MessageHandler(object):
 
     # ------------------------------------------------------------------------------------
-    def __init__(self,broker_address='ec2-52-32-56-28.us-west-2.compute.amazonaws.com'):
+    def __init__(self,broker_address='gx100.local'):
         self.broker_address = broker_address
         self.client = mqtt.Client('gdcontroller2')
         self.commandTopic = "GDCTL/COMMAND"
@@ -27,19 +27,21 @@ class MessageHandler(object):
     # ------------------------------------------------------------------------------------
     def on_message(self, client, userdata, message):
         payload = str(message.payload.decode("utf-8"))
+        #logging.info( 'Payload came in: %s',  payload )
         try:
             jsonPayload = json.loads(payload)
             #
             # is this a HHB Door Status message?
 
-            print 'Topic >>>> ', jsonPayload['topic']
+            logging.info( 'Topic came in: %s',  jsonPayload['topic'] )
+
             #
             # is this a command to open or close the door?
             if jsonPayload['topic'] == self.commandTopic:
                 logging.info('Command received! [%s]', payload)
                 print 'Command received!',payload
 
-                date_time = jsonPayload["datetime"]
+                date_time = jsonPayload["dateTime"]
                 door_id = jsonPayload["doorID"]
                 command = jsonPayload["command"]
                 logging.debug('Command received on %s, for door %s, command %s', date_time, door_id, command)
@@ -56,9 +58,9 @@ class MessageHandler(object):
                 # OK - this is a standard HHB/STATUS command - look for the message about Garage Doors
                 device_type = jsonPayload['deviceType']
                 if device_type == 24:
-                    print 'Door 24 Status Received !', payload
                     door_state = jsonPayload['state'].upper()
-                    date_time = jsonPayload['datetime']
+                    date_time = jsonPayload['dateTime']
+                    logging.info('Door 24 Status Received! State %s', door_state)
 
                     # Fix this as soon as I get more than one Garage Door
                     door_id = 1
@@ -66,8 +68,9 @@ class MessageHandler(object):
                         self.garageDoors.get(door_id).set_closed(date_time)
                     else:
                         self.garageDoors.get(door_id).set_opened(date_time)
-        except:
+        except Exception as ex:
             logging.error('Error trying to convert message to json You havent fixed the json payload in HHB yet, have you?')
+            logging.error(ex)
 
     # ------------------------------------------------------------------------------------
     def start(self):
@@ -77,6 +80,7 @@ class MessageHandler(object):
         self.client.subscribe(self.commandTopic,0)
         self.client.subscribe(self.doorStatusTopic,0)
         self.client.loop_start()
+        logging.info('Mosquitto loop started.')
 
     # ------------------------------------------------------------------------------------
     def cleanup(self):
@@ -90,8 +94,8 @@ class MessageHandler(object):
         ##logging.info('Sending a status message')
         data = OrderedDict()
         data['topic'] = 'GDCTL/STATUS'
-        data['datetime'] = datetime.datetime.now().replace(microsecond=0).isoformat()
-        data['system'] = SystemStats().asJSON()
+        data['dateTime'] = datetime.datetime.now().replace(microsecond=0).isoformat()
+        #data['system'] = SystemStats().asJSON()
         # data['door'] = self.garageDoors.get(1).asJSON()
         doorData = self.garageDoors.get(1).asJSON()
         data['door'] = doorData

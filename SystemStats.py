@@ -34,7 +34,7 @@ class SystemStats(object):
     def get_SSID(self, interface='wlan0'):
         ssid = "None"
         try:
-            scanoutput = check_output(['iwlist', interface, 'scan'])
+            scanoutput = check_output(['iwconfig', interface])
             for line in scanoutput.split():
                 line = line.decode('utf-8')
                 if line[:5] == 'ESSID':

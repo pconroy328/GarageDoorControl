@@ -16,12 +16,12 @@ class GarageDoor(object):
         self.last_command_datetime = datetime.datetime.now()
 
     def set_opened(self, date_time):
-         #logging.debug('Setting garage door state to OPENED at %s', date_time)
+         logging.debug('Setting garage door state to OPENED at %s', date_time)
          self.state_datetime = date_time
          self.state = 'OPENED'
 
     def set_closed(self, date_time):
-         #logging.debug('Setting garage door state to CLOSED at %s', date_time)
+         logging.debug('Setting garage door state to CLOSED at %s', date_time)
          self.state_datetime = date_time
          self.state = 'CLOSED'
 
@@ -45,7 +45,7 @@ class GarageDoor(object):
     def do_close_door(self):
         logging.info('Command received to close the door')
         if self.state == 'CLOSED':
-            logging.info('Close command ignored - door is already open')
+            logging.info('Close command ignored - door is already closed')
             return
         logging.info('Setting state to in-motion - triggering relay')
         self.last_command = 'CLOSE'

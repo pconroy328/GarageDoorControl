@@ -29,21 +29,21 @@ import logging
 # Repo is https://git-codecommit.us-east-1.amazonaws.com/v1/repos/GarageDoorControl
 #
 FORMAT = '%(asctime)-15s|%(levelname)s|%(message)s'
-logging.basicConfig(format=FORMAT,filename='garagedoorcontroller.log', level=logging.DEBUG)
+logging.basicConfig(format=FORMAT,filename='/tmp/garagedoorcontroller.log', level=logging.WARNING)
 #
-# logging.getLogger().setLevel(logging.DEBUG)
+logging.getLogger().setLevel(logging.DEBUG)
 #
 
-logging.info("GarageDoorController - v9 - Application start!")
+logging.info("GarageDoorController - v9.1 - Application start!")
 
-aws_mqtt_broker = 'ec2-52-32-56-28.us-west-2.compute.amazonaws.com'
-msgHandler = MessageHandler(aws_mqtt_broker)
+mqtt_broker = 'gx100.local'
+msgHandler = MessageHandler(mqtt_broker)
 msgHandler.start()
 
 loopCounter = 0
 while True:
-    #if (loopCounter % 10 == 0):
-    #    logging.info('v7 Main loop sleeping - processing messages')
+    if (loopCounter % 10 == 0):
+        logging.info('v9.1 Main loop sleeping - processing messages')
     msgHandler.sendStatusMessage()
     sleep(30)
     loopCounter += 1
