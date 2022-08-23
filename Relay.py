@@ -3,7 +3,7 @@ from time import sleep
 
 class Relay:
     def __init__(self):
-        print 'Creating and initializing relay class'
+        print('Creating and initializing relay class')
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BCM)
 
@@ -22,13 +22,13 @@ class Relay:
             pin_number = self.door1_pin_number
         else:
             pin_number = self.door2_pin_number
-        print 'Relay Trigger invoked on pin number', pin_number
+        print('Relay Trigger invoked on pin number', pin_number)
         GPIO.output(pin_number, GPIO.LOW)
         sleep(self.latch_time)
         GPIO.output(pin_number, GPIO.HIGH)
 
     def cleanup(self):
-        print 'Cleaning up relay'
+        print('Cleaning up relay')
         GPIO.output(self.door1_pin_number, GPIO.HIGH)
         GPIO.output(self.door2_pin_number, GPIO.HIGH)
         GPIO.cleanup(self.door1_pin_number)

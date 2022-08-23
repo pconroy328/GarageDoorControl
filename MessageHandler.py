@@ -1,11 +1,16 @@
 import paho.mqtt.client as mqtt
 import json
 import datetime
+import time
 from GarageDoor import GarageDoor
 from SystemStats import SystemStats
 import logging
 from collections import OrderedDict
+import os
 
+##
+## adding voice 21Feb2022
+##
 
 
 class MessageHandler(object):
@@ -13,7 +18,7 @@ class MessageHandler(object):
     # ------------------------------------------------------------------------------------
     def __init__(self,broker_address='gx100.local'):
         self.broker_address = broker_address
-        self.client = mqtt.Client('gdcontroller2')
+        self.client = mqtt.Client(client_id="", clean_session=True, userdata=None)
         self.commandTopic = "GDCTL/COMMAND"
         self.statusTopic = "GDCTL/STATUS"
         self.doorStatusTopic = "HHB/STATUS"
@@ -32,24 +37,36 @@ class MessageHandler(object):
             jsonPayload = json.loads(payload)
             #
             # is this a HHB Door Status message?
-
-            logging.info( 'Topic came in: %s',  jsonPayload['topic'] )
+            ###logging.info( 'Topic came in: %s',  jsonPayload['topic'] )
 
             #
             # is this a command to open or close the door?
             if jsonPayload['topic'] == self.commandTopic:
-                logging.info('Command received! [%s]', payload)
-                print 'Command received!',payload
+                logging.debug('Command received! [%s]', payload)
 
                 date_time = jsonPayload["dateTime"]
                 door_id = jsonPayload["doorID"]
                 command = jsonPayload["command"]
-                logging.debug('Command received on %s, for door %s, command %s', date_time, door_id, command)
+                logging.info('Command received on %s, for door %s, command %s', date_time, door_id, command)
 
                 if command.upper() == 'OPEN':
                     self.garageDoors.get(door_id).do_open_door()
+
                 elif command.upper() == 'CLOSE':
+                    # Stop receiving messages for a bit
+                    logging.info('Close command arrived - unsubcribing from the topic')
+                    self.client.subscribe(self.commandTopic)
+
+                    logging.info('Playing warning message')
+                    os.system('aplay -Dplughw /home/pconroy/GarageDoorControl/doorclosing.wav')
+
+                    logging.info('Sending close command to door')
                     self.garageDoors.get(door_id).do_close_door()
+
+                    logging.info('Sleeping 5 seconds then resubcribing')
+                    time.sleep(5)
+                    self.client.subscribe(self.commandTopic,0)
+
                 elif command.upper() == 'TRIGGER':
                     self.garageDoors.get(door_id).do_trigger_door()
 
